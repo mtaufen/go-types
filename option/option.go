@@ -23,11 +23,11 @@ func None[T any]() Option[T] {
 	return Option[T]{nil}
 }
 
-// Get unpacks the Option o and executes some if the Option
+// Use unpacks the Option o and executes some if the Option
 // was constructed with Some or executes none if the Option
 // was constructed with None. The return value of whichever
-// function executes will be returned from Get.
-func Get[T, U any](
+// function executes will be returned from Use.
+func Use[T, U any](
 	o Option[T],
 	some func(v T) U,
 	none func() U,

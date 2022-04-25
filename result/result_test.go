@@ -12,10 +12,11 @@ func TestResult(t *testing.T) {
 
 	// Pattern matching style might be a bit nicer if Go had
 	// named parameters in function calls, since the names
-	// would show inside Get, but this still does the job
-	// and with practice you'd get used to knowing that
-	// the match for Some goes in the second arg and the
-	// match for None goes in the third.
+	// would show inside Use call, but this still does the job
+	// and with practice you'd get used to knowing that the
+	// match for Ok goes in the second arg and the match for
+	// Error goes in the third. Plus the function signatures
+	// make it pretty clear inline anyway.
 	ok := func(v int) string {
 		return fmt.Sprintf("%d", v)
 	}
@@ -23,11 +24,11 @@ func TestResult(t *testing.T) {
 		return err.Error()
 	}
 
-	if s := Get(success, ok, e); s != "6" {
-		t.Errorf(`Get Ok: got %q, want "6"`, s)
+	if s := Use(success, ok, e); s != "6" {
+		t.Errorf(`Use Ok: got %q, want "6"`, s)
 	}
 
-	if s := Get(err, ok, e); s != "oops!" {
-		t.Errorf(`Get Error: got %q, want oops!`, s)
+	if s := Use(err, ok, e); s != "oops!" {
+		t.Errorf(`Use Error: got %q, want oops!`, s)
 	}
 }

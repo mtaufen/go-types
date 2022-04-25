@@ -4,6 +4,8 @@
 // in match exprs.
 package result
 
+import "errors"
+
 // Result represents the result of a computation.
 // If constructed with Ok, it represents a success.
 // If constructed with Error, it represents a failure.
@@ -19,14 +21,17 @@ func Ok[T any](v T) Result[T] {
 
 // Error constructs a Result from an error.
 func Error[T any](err error) Result[T] {
+	if err == nil {
+		err = errors.New("")
+	}
 	return Result[T]{err: err}
 }
 
-// Get unpacks the Result r and executes ok if the Result
+// Use unpacks the Result r and executes ok if the Result
 // was constructed with Ok or executes e if the Result was
 // constructed with Error. The return value of whichever
-// function executes will be returned from Get.
-func Get[T, U any](
+// function executes will be returned from Use.
+func Use[T, U any](
 	r Result[T],
 	ok func(v T) U,
 	e func(err error) U) U {
@@ -38,10 +43,6 @@ func Get[T, U any](
 	// value in Ok. For that reason, we check whether r.v is
 	// nil instead of checking r.err.
 	if r.v == nil {
-		// TODO: When r.err is nil, should we allocate an error
-		// instead of just returning the nil error, so callers
-		// of Get don't have to worry about whether the error
-		// might be nil?
 		return e(r.err)
 	}
 	return ok(*r.v)
