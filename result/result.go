@@ -34,8 +34,8 @@ func Error[T any](err error) Result[T] {
 func Use[T, U any](
 	r Result[T],
 	ok func(v T) U,
-	e func(err error) U) U {
-
+	e func(err error) U,
+) U {
 	if r.err != nil {
 		return e(r.err)
 	}
