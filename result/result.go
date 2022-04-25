@@ -36,13 +36,7 @@ func Use[T, U any](
 	ok func(v T) U,
 	e func(err error) U) U {
 
-	// It's possible to construct an Error Result with a nil
-	// error, by passing nil to Error, but it's not possible
-	// to construct an Ok Result with a nil value by passing
-	// nil to Ok, because we always take the address of that
-	// value in Ok. For that reason, we check whether r.v is
-	// nil instead of checking r.err.
-	if r.v == nil {
+	if r.err != nil {
 		return e(r.err)
 	}
 	return ok(*r.v)
