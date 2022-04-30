@@ -1,9 +1,12 @@
 package option
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestOption(t *testing.T) {
-	value := Some(6)
+	value := Some(1)
 	nothing := None[int]()
 
 	// Pattern matching style might be a bit nicer if Go had
@@ -13,18 +16,50 @@ func TestOption(t *testing.T) {
 	// match for Some goes in the second arg and the match for
 	// None goes in the third. Plus the function signatures
 	// make it pretty clear inline anyway.
-	some := func(v int) bool {
-		return v > 5
+	some := func(v int) int {
+		return v
 	}
-	none := func() bool {
-		return false
-	}
-
-	if Use(value, some, none) == false {
-		t.Errorf("Use Some: got false, want true")
+	none := func() int {
+		return -1
 	}
 
-	if Use(nothing, some, none) == true {
-		t.Errorf("Use None: got true, want false")
+	if v := Match(value, some, none); v != 1 {
+		t.Errorf("Some: got %d, want 1", v)
 	}
+
+	if v := Match(nothing, some, none); v != -1 {
+		t.Errorf("None: got %d, want -1", v)
+	}
+}
+
+func TestMap(t *testing.T) {
+	intToString := func(v int) string {
+		return fmt.Sprintf("%d", v)
+	}
+
+	value := Map(intToString, Some(1))
+	nothing := Map(intToString, None[int]())
+
+	some := func(v string) string {
+		return v
+	}
+	none := func() string {
+		return ""
+	}
+
+	if v := Match(value, some, none); v != "1" {
+		t.Errorf(`Some: got %s, want "1"`, v)
+	}
+
+	if v := Match(nothing, some, none); v != "" {
+		t.Errorf(`None: got %s, want empty string ""`, v)
+	}
+}
+
+func TestApply(t *testing.T) {
+	// TODO
+}
+
+func TestBind(t *testing.T) {
+	// TODO
 }

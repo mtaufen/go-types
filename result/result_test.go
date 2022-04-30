@@ -24,11 +24,11 @@ func TestResult(t *testing.T) {
 		return err.Error()
 	}
 
-	if s := Use(success, ok, e); s != "6" {
-		t.Errorf(`Use Ok: got %q, want "6"`, s)
+	if s := Match(success, ok, e); s != "6" {
+		t.Errorf(`Ok: got %q, want "6"`, s)
 	}
 
-	if s := Use(err, ok, e); s != "oops!" {
-		t.Errorf(`Use Error: got %q, want oops!`, s)
+	if s := Match(err, ok, e); s != "oops!" {
+		t.Errorf(`Error: got %q, want oops!`, s)
 	}
 }
