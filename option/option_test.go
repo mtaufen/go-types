@@ -63,3 +63,31 @@ func TestApply(t *testing.T) {
 func TestBind(t *testing.T) {
 	// TODO
 }
+
+func TestPipe(t *testing.T) {
+	value := Some(1)
+	nothing := None[int]()
+
+	ib := NewPipe(func(i int) bool {
+		return i != 0
+	})
+	bs := NewPipe(func(b bool) string {
+		return fmt.Sprintf("%t", b)
+	})
+
+	pipeline := func(i Option[int]) Option[string] {
+		ib.In <- i
+		bs.In <- <-ib.Out
+		return <-bs.Out
+	}
+
+	if v := Match(pipeline(value),
+		Id[string], Zero[string]); v != "true" {
+		t.Errorf(`Some: got %s, want "true"`, v)
+	}
+
+	if v := Match(pipeline(nothing),
+		Id[string], Zero[string]); v != "" {
+		t.Errorf(`None: got %s, want ""`, v)
+	}
+}

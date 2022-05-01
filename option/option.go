@@ -47,7 +47,6 @@ func Match[T, U any](
 // is None, then the returned Option is also None.
 func Map[T, U any](f func(T) U, o Option[T]) Option[U] {
 	return Match(o,
-		// Some v
 		func(v T) Option[U] {
 			return Some(f(v))
 		},
@@ -83,6 +82,54 @@ func Bind[T, U any](
 	return Match(o, f, None[U])
 }
 
+// Ideally we'd have some syntactic sugar for chaining
+// Bind calls.
+// Since Go doesn't allow type parameters in methods,
+// we can't just do this:
+//   func (m M[T]) Bind[T, U any](func(T) M[U]) M[U]
+// which would then allow us to do this:
+//   m.Bind(f).Bind(g).Bind(h)...
+// which would basically be enough.
+// So instead we need to do this:
+//   Bind(Bind(Bind(m, f), g) h)
+// Consider a function Pipe that composes two functions,
+// where Pipe f g = g f. Then we could potentially have:
+//   Bind(m, Pipe(Pipe(f, g), h))
+// which at least decouples writing the functional pipeline
+// from calling Bind, but is still rather verbose. If Go
+// had a syncatic sugar for function composition like +,
+// then we could have something like:
+//   Bind(m, h + g + f)
+// Alternatively, if Go had a syntactic sugar like => for
+// Bind, then we could do something like:
+//   m => f => g => h
+// which gives a clear pipeline.
+
+// What if we had something that took a func and returned
+// an input channel and an output channel, where the input
+// side was M[T] and the output M[U]? How far can that
+// get us?
+
+type Pipe[T, U any] struct {
+	In  chan<- Option[T]
+	Out <-chan Option[U]
+}
+
+func NewPipe[T, U any](
+	f func(T) U,
+) Pipe[T, U] {
+	in := make(chan Option[T])
+	out := make(chan Option[U])
+	run := func() {
+		for o := range in {
+			out <- Map(f, o)
+		}
+		close(out)
+	}
+	go run()
+	return Pipe[T, U]{in, out}
+}
+
 // TODO: Consider manually currying Do
 // Kind of an experiment. Not quite a monad (return types
 // can't change across the pipeline) but maybe still useful
@@ -108,4 +155,17 @@ func (o Option[T]) Do(
 		}
 	}
 	return o
+}
+
+// TODO: move these to a separate package.
+
+// Id is the identity func.
+func Id[T any](v T) T {
+	return v
+}
+
+// Zero is the zero val func.
+func Zero[T any]() T {
+	var zero T
+	return zero
 }
