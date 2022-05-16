@@ -27,11 +27,11 @@ func Error[T any](err error) Result[T] {
 	return Result[T]{err: err}
 }
 
-// Use unpacks the Result r and executes ok if the Result
+// Match unpacks the Result r and executes ok if the Result
 // was constructed with Ok or executes e if the Result was
 // constructed with Error. The return value of whichever
-// function executes will be returned from Use.
-func Use[T, U any](
+// function executes will be returned from Match.
+func Match[T, U any](
 	r Result[T],
 	ok func(v T) U,
 	e func(err error) U,

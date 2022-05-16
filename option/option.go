@@ -23,13 +23,13 @@ func None[T any]() Option[T] {
 	return Option[T]{nil}
 }
 
-// Use unpacks the Option o and executes some if the Option
+// Match unpacks the Option o and executes some if the Option
 // was constructed with Some or executes none if the Option
 // was constructed with None. The return value of whichever
-// function executes will be returned from Use.
-func Use[T, U any](
+// function executes will be returned from Match.
+func Match[T, U any](
 	o Option[T],
-	some func(v T) U,
+	some func(T) U,
 	none func() U,
 ) U {
 	if o.v == nil {
